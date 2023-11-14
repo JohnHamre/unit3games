@@ -1,11 +1,14 @@
 pub use glam::*;
+use bytemuck::Zeroable;
 
 pub struct Arrow {
     pub pos: Vec2,
     pub vel: Vec2,
     pub rot: f32,
+    pub spin: f32,
     pub target: Vec2,
     pub target_frame: usize,
+
 }
 
 impl Arrow {
@@ -26,4 +29,29 @@ impl Arrow {
 
 pub struct Target {
     pub pos: Vec2,
+}
+
+pub trait REvent {
+    fn spawn_event(&self);
+    fn get_start_time(&self) -> usize;
+    fn load_event_from_string(&mut self, file_line: String);
+}
+
+#[derive(Zeroable)]
+pub struct ArrowREvent {
+    start_time: usize,
+}
+
+impl REvent for ArrowREvent {
+    fn spawn_event(&self) {
+        // TODO
+    }
+
+    fn get_start_time(&self) -> usize {
+        return self.start_time;
+    }
+
+    fn load_event_from_string(&mut self, file_line: String) {
+        // TODO
+    }
 }
