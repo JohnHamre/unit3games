@@ -41,19 +41,19 @@ impl engine::Game for Game {
         };
         #[cfg(target_arch = "wasm32")]
         let sprite_img = {
-            let img_bytes = include_bytes!("content/arrows.png");
+            let img_bytes = include_bytes!("content/Sheet.png");
             image::load_from_memory_with_format(&img_bytes, image::ImageFormat::Png)
                 .map_err(|e| e.to_string())
                 .unwrap()
                 .into_rgba8()
         };
         #[cfg(not(target_arch = "wasm32"))]
-        let sprite_img = image::open("content/arrows.png").unwrap().into_rgba8();
+        let sprite_img = image::open("content/Sheet.png").unwrap().into_rgba8();
         let sprite_tex = engine.renderer.gpu.create_texture(
             &sprite_img,
             wgpu::TextureFormat::Rgba8UnormSrgb,
             sprite_img.dimensions(),
-            Some("spr-arrows.png"),
+            Some("spr-Sheet.png"),
         );
         engine.renderer.sprites.add_sprite_group(
             &engine.renderer.gpu,
@@ -197,7 +197,7 @@ impl engine::Game for Game {
             size: Vec2 { x: W, y: H },
         }
         .into();
-        uvs[0] = SheetRegion::new(0, 0, 0, 16, 640, 480);
+        uvs[0] = SheetRegion::new(0, 0, 0, 16, 880, 440);
         // set walls
         const WALL_START: usize = 1;
         let guy_idx = WALL_START + self.gamestate.walls.len();
