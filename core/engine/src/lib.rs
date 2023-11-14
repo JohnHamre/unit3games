@@ -3,10 +3,22 @@ pub use frenderer::{
     input::{Input, Key},
     wgpu, BitFont, Frenderer, GPUCamera as Camera, SheetRegion, Transform,
 };
+use structs::{ArrowREvent, REvent};
+pub use std::fs::File;
+pub use std::io::{self, BufRead};
+pub use std::path::Path;
 pub trait Game: Sized + 'static {
     fn new(engine: &mut Engine) -> Self;
     fn update(&mut self, engine: &mut Engine);
     fn render(&mut self, engine: &mut Engine);
+}
+
+// The output is wrapped in a Result to allow matching on errors
+// Returns an Iterator to the Reader of the lines of the file.
+fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
+where P: AsRef<Path>, {
+    let file = File::open(filename)?;
+    Ok(io::BufReader::new(file).lines())
 }
 
 pub struct Engine {
@@ -18,6 +30,18 @@ pub struct Engine {
 
 impl Engine {
     pub fn new(builder: winit::window::WindowBuilder) -> Self {
+        if let Ok(lines) = read_lines("content/levels/test_stage.rchart") {
+            // Consumes the iterator, returns an (Optional) String
+            for line in lines {
+                if let Ok(ip) = line {
+                    let mut e = ArrowREvent{
+                        start_time: 0,
+                    };
+                    e.load_event_from_string(ip);
+                }
+            }
+        }
+
         let event_loop = winit::event_loop::EventLoop::new();
         let window = builder.build(&event_loop).unwrap();
         let renderer = frenderer::with_default_runtime(&window);

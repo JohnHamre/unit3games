@@ -39,7 +39,7 @@ pub trait REvent {
 
 #[derive(Zeroable)]
 pub struct ArrowREvent {
-    start_time: usize,
+    pub start_time: usize,
 }
 
 impl REvent for ArrowREvent {
@@ -53,5 +53,8 @@ impl REvent for ArrowREvent {
 
     fn load_event_from_string(&mut self, file_line: String) {
         // TODO
+        let string_parts = file_line.split(", ");
+        let params = string_parts.collect::<Vec<&str>>();
+        dbg!(params);
     }
 }

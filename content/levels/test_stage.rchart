@@ -2,5 +2,5 @@ Song, Songfile.mp3
 # BPM Format: beats per minute, smallest subdivide (4 is 16th notes).
 BPM, 100, 4
 # Arrow Format: start_pos, target_pos, start_time, target_time, start_rot, spin, texture_filepath, (tex_vec4)
-Arrow, (400.0, 0.0), (400.0, 400.0), 1000, 1200, 0.0, 0.0, content/arrows.png, (0.0, 0.0, 0.1667, 0.1667)
-Arrow, (400.0, 0.0), (400.0, 400.0), 2000, 2600, 0.0, 0.0, content/arrows.png, (0.0, 0.0, 0.1667, 0.1667)
+Arrow, 400.0, 0.0, 400.0, 400.0, 1000, 1200, 0.0, 0.0, content/arrows.png, 0.0, 0.0, 0.1667, 0.1667
+Arrow, 400.0, 0.0, 400.0, 400.0, 2000, 2600, 0.0, 0.0, content/arrows.png, 0.0, 0.0, 0.1667, 0.1667
