@@ -34,7 +34,7 @@ pub struct Target {
 pub trait REvent {
     fn spawn_event(&self);
     fn get_start_time(&self) -> usize;
-    fn load_event_from_string(&mut self, file_line: String);
+    fn load_event_from_string(&mut self, file_line: Vec<&str>);
 }
 
 #[derive(Zeroable)]
@@ -51,10 +51,7 @@ impl REvent for ArrowREvent {
         return self.start_time;
     }
 
-    fn load_event_from_string(&mut self, file_line: String) {
+    fn load_event_from_string(&mut self, file_line: Vec<&str>) {
         // TODO
-        let string_parts = file_line.split(", ");
-        let params = string_parts.collect::<Vec<&str>>();
-        dbg!(params);
     }
 }

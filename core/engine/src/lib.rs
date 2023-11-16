@@ -7,6 +7,7 @@ use structs::{ArrowREvent, REvent};
 pub use std::fs::File;
 pub use std::io::{self, BufRead};
 pub use std::path::Path;
+pub use std::collections::VecDeque;
 pub trait Game: Sized + 'static {
     fn new(engine: &mut Engine) -> Self;
     fn update(&mut self, engine: &mut Engine);
@@ -24,31 +25,27 @@ where P: AsRef<Path>, {
 pub struct Engine {
     pub renderer: Frenderer,
     pub input: Input,
+    pub level_state: LevelState,
     event_loop: Option<winit::event_loop::EventLoop<()>>,
     window: winit::window::Window,
 }
 
+pub struct LevelState {
+    pub loaded: bool,
+    pub r_queue: VecDeque<Box<dyn REvent>>,
+}
+
 impl Engine {
     pub fn new(builder: winit::window::WindowBuilder) -> Self {
-        if let Ok(lines) = read_lines("content/levels/test_stage.rchart") {
-            // Consumes the iterator, returns an (Optional) String
-            for line in lines {
-                if let Ok(ip) = line {
-                    let mut e = ArrowREvent{
-                        start_time: 0,
-                    };
-                    e.load_event_from_string(ip);
-                }
-            }
-        }
-
         let event_loop = winit::event_loop::EventLoop::new();
         let window = builder.build(&event_loop).unwrap();
+        let level_state = empty_level_state();
         let renderer = frenderer::with_default_runtime(&window);
         let input = Input::default();
         Self {
             renderer,
             input,
+            level_state,
             window,
             event_loop: Some(event_loop),
         }
@@ -119,3 +116,43 @@ impl Engine {
 }
 pub mod geom;
 pub mod structs;
+
+pub fn load_stage(engine: &mut Engine) {
+    let mut r_queue: VecDeque<Box<dyn REvent>> = VecDeque::new();
+    if let Ok(lines) = read_lines("content/levels/test_stage.rchart") {
+        // Consumes the iterator, returns an (Optional) String
+        for line in lines {
+            if let Ok(ip) = line {
+                // Read individual line parts
+                let string_parts = ip.split(", ");
+                let params = string_parts.collect::<Vec<&str>>();
+
+                if params.len() > 0 {
+                    match params[0] {
+                        "Song" => {
+    
+                        }
+                        "BPM" => {
+                            // TODO Set BPM
+                        }
+                        "Arrow" => {
+                            let mut e = ArrowREvent::zeroed();
+                            e.load_event_from_string(params);
+                            r_queue.push_back(Box::new(e));
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
+    }
+
+    engine.level_state = LevelState {
+        loaded: true,
+        r_queue: r_queue,
+    };
+}
+
+fn empty_level_state() -> LevelState {
+    return LevelState { loaded: false, r_queue: VecDeque::new() };
+}
