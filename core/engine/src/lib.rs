@@ -146,7 +146,6 @@ pub fn load_stage(engine: &mut Engine) {
             }
         }
     }
-
     engine.level_state = LevelState {
         loaded: true,
         r_queue: r_queue,
