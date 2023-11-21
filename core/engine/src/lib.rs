@@ -52,6 +52,7 @@ impl Engine {
     }
     pub fn run<G: Game>(mut self) {
         let mut game = G::new(&mut self);
+        load_stage(&mut self, "content/levels/test_stage.rchart");
         const DT: f32 = 1.0 / 240.0;
         const DT_FUDGE_AMOUNT: f32 = 0.000002;
         const DT_MAX: f32 = DT * 5.0;
@@ -117,9 +118,9 @@ impl Engine {
 pub mod geom;
 pub mod structs;
 
-pub fn load_stage(engine: &mut Engine) {
+pub fn load_stage(engine: &mut Engine, filepath: &str) {
     let mut r_queue: VecDeque<Box<dyn REvent>> = VecDeque::new();
-    if let Ok(lines) = read_lines("content/levels/test_stage.rchart") {
+    if let Ok(lines) = read_lines(filepath) {
         // Consumes the iterator, returns an (Optional) String
         for line in lines {
             if let Ok(ip) = line {
