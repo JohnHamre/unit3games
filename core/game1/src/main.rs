@@ -176,6 +176,7 @@ impl engine::Game for Game {
                 rot: 0.0,
                 spin: 0.0,
                 arrow_dir: 1,
+                target_time:0,
             });
             self.gamestate.apple_timer = 100;
         }
