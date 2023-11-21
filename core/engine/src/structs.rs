@@ -6,10 +6,7 @@ pub struct Arrow {
     pub vel: Vec2,
     pub rot: f32,
     pub spin: f32,
-<<<<<<< HEAD
     pub target_time: usize,
-=======
->>>>>>> arrow-work
     // 0 = left, 1 = right, 2 = up, 3 = down
     pub arrow_dir: usize,
 }
