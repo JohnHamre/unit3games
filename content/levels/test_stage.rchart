@@ -3,4 +3,4 @@ Song, Songfile.mp3
 BPM, 100, 4
 # Arrow Format: start_x, start_y, target_x, target_y, arrow_dir, start_time, target_time, start_rot, end_rot, cycles, texture_filepath, (tex_vec4)
 Arrow, 400.0, 0.0, 400.0, 400.0, 0, 144, 500, 0.0, 0.0, 0.0, content/arrows.png, 0.0, 0.0, 0.1667, 0.1667
-Arrow, 400.0, 0.0, 400.0, 400.0, 0, 288, 700, 0.0, 0.0, 0.0, content/arrows.png, 0.0, 0.0, 0.1667, 0.1667
+Arrow, 400.0, 0.0, 400.0, 400.0, 0, 288, 644, 0.0, 0.0, 0.0, content/arrows.png, 0.0, 0.0, 0.1667, 0.1667

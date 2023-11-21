@@ -33,19 +33,19 @@ pub struct Target {
 
 pub trait REvent {
     fn spawn_event(&self);
-    fn get_start_time(&self) -> usize;
+    fn get_start_time(&self) -> i32;
     fn load_event_from_string(&mut self, file_line: Vec<&str>);
 }
 
 #[derive(Zeroable)]
 pub struct ArrowREvent {
-    pub start_time: usize,
+    pub start_time: i32,
     pub pos: Vec2,
     pub vel: Vec2,
     pub arrow_dir: usize,
     pub rot: f32,
     pub spin: f32,
-    pub target_time: usize,
+    pub target_time: i32,
 }
 
 impl REvent for ArrowREvent {
@@ -54,7 +54,7 @@ impl REvent for ArrowREvent {
         println!("Spawned arrow!");
     }
 
-    fn get_start_time(&self) -> usize {
+    fn get_start_time(&self) -> i32 {
         return self.start_time;
     }
 
@@ -62,8 +62,8 @@ impl REvent for ArrowREvent {
         let mut start_pos = Vec2::zeroed();
         let mut target_pos = Vec2::zeroed();
         let mut arrow_dir: usize = 0;
-        let mut start_time: usize = 0;
-        let mut target_time: usize = 0;
+        let mut start_time: i32 = 0;
+        let mut target_time: i32 = 0;
         let mut start_rot = 0.0;
         let mut end_rot = 0.0;
         // TODO

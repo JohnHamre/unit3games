@@ -74,33 +74,6 @@ impl Engine {
                         *control_flow = winit::event_loop::ControlFlow::Exit;
                     }
                     Event::MainEventsCleared => {
-                        self.level_state.queue_timer += 1;
-
-                        let mut finished = false;
-
-                        while !finished {
-                            if self.level_state.r_queue.len() > 0 {
-                                match self.level_state.r_queue.get(0) {
-                                    Some(b) => {
-                                        if b.get_start_time() as i32 <= self.level_state.queue_timer {
-                                            b.spawn_event();
-                                        }
-                                        else {
-                                            finished = true;
-                                        }
-                                    }
-                                    _ => {}
-                                }
-                            }
-                            else {
-                                finished = true;
-                            }
-                            if !finished {
-                                self.level_state.r_queue.pop_front();
-                                println!("{}", self.level_state.queue_timer);
-                            }
-                        }
-
                         // compute elapsed time since last frame
                         let mut elapsed = now.elapsed().as_secs_f32();
                         // println!("{elapsed}");
@@ -120,6 +93,33 @@ impl Engine {
                         // While we have time to spend
                         while acc >= DT {
                             // simulate a frame
+
+                            self.level_state.queue_timer += 1;
+
+                            let mut finished = false;
+    
+                            while !finished {
+                                if self.level_state.r_queue.len() > 0 {
+                                    match self.level_state.r_queue.get(0) {
+                                        Some(b) => {
+                                            if b.get_start_time() as i32 <= self.level_state.queue_timer {
+                                                b.spawn_event();
+                                            }
+                                            else {
+                                                finished = true;
+                                            }
+                                        }
+                                        _ => {}
+                                    }
+                                }
+                                else {
+                                    finished = true;
+                                }
+                                if !finished {
+                                    self.level_state.r_queue.pop_front();
+                                    println!("{}", self.level_state.queue_timer);
+                                }
+                            }
                             acc -= DT;
                             game.update(&mut self);
                             self.input.next_frame();
