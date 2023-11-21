@@ -23,7 +23,7 @@ struct Apple {
 struct GameState {
     walls: Vec<AABB>,
     guy: Guy,
-    apples: Vec<Apple>,
+    arrows: Vec<Arrow>,
     apple_timer: u32,
     score: u32,
 }
@@ -95,7 +95,7 @@ impl engine::Game for Game {
             gamestate: GameState {
                 guy,
                 walls: vec![left_wall, right_wall, floor],
-                apples: Vec::with_capacity(16),
+                arrows: Vec::with_capacity(16),
                 apple_timer: 0,
                 score: 0,
             },
@@ -161,31 +161,35 @@ impl engine::Game for Game {
         let mut rng = rand::thread_rng();
         if self.gamestate.apple_timer > 0 {
             self.gamestate.apple_timer -= 1;
-        } else if self.gamestate.apples.len() < 8 {
-            self.gamestate.apples.push(Apple {
+        } else if self.gamestate.arrows.len() < 8 {
+            self.gamestate.arrows.push(Arrow {
                 pos: Vec2 {
-                    x: rng.gen_range(8.0..(W - 8.0)),
+                    //x: rng.gen_range(8.0..(W - 8.0)),
+                    x: W/2.0,
                     y: H + 8.0,
                 },
                 vel: Vec2 {
                     x: 0.0,
-                    y: rng.gen_range((-4.0)..(-1.0)),
+                    //y: rng.gen_range((-4.0)..(-1.0)),
+                    y: -1.0,
                 },
+                rot: 0.0,
+                spin: 0.0,
             });
             self.gamestate.apple_timer = rng.gen_range(30..90);
         }
-        for apple in self.gamestate.apples.iter_mut() {
+        for apple in self.gamestate.arrows.iter_mut() {
             apple.pos += apple.vel;
         }
         if let Some(idx) = self.gamestate
-            .apples
+            .arrows
             .iter()
             .position(|apple| apple.pos.distance(self.gamestate.guy.pos) <= CATCH_DISTANCE)
         {
-            self.gamestate.apples.swap_remove(idx);
+            self.gamestate.arrows.swap_remove(idx);
             self.gamestate.score += 1;
         }
-        self.gamestate.apples.retain(|apple| apple.pos.y > -8.0)
+        self.gamestate.arrows.retain(|apple| apple.pos.y > -8.0)
     }
     fn render(&mut self, engine: &mut Engine) {
         // set bg image
@@ -220,7 +224,7 @@ impl engine::Game for Game {
         uvs[guy_idx] = SheetRegion::new(0, 16, 480, 8, 16, 16);
         // set apple
         let apple_start = guy_idx + 1;
-        for (apple, (trf, uv)) in self.gamestate.apples.iter().zip(
+        for (apple, (trf, uv)) in self.gamestate.arrows.iter().zip(
             trfs[apple_start..]
                 .iter_mut()
                 .zip(uvs[apple_start..].iter_mut()),
@@ -232,7 +236,7 @@ impl engine::Game for Game {
             .into();
             *uv = SheetRegion::new(0, 0, 565, 4, 32, 32);
         }
-        let sprite_count = apple_start + self.gamestate.apples.len();
+        let sprite_count = apple_start + self.gamestate.arrows.len();
         let score_str = self.gamestate.score.to_string();
         let text_len = score_str.len();
         engine.renderer.sprites.resize_sprite_group(
