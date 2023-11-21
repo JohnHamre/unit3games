@@ -175,8 +175,9 @@ impl engine::Game for Game {
                 },
                 rot: 0.0,
                 spin: 0.0,
+                arrow_dir: 1,
             });
-            self.gamestate.apple_timer = rng.gen_range(30..90);
+            self.gamestate.apple_timer = 100;
         }
         for apple in self.gamestate.arrows.iter_mut() {
             apple.pos += apple.vel;
@@ -234,7 +235,15 @@ impl engine::Game for Game {
                 size: Vec2 { x: 16.0, y: 16.0 },
             }
             .into();
-            *uv = SheetRegion::new(0, 0, 565, 4, 32, 32);
+            if (apple.arrow_dir == 0) {
+                *uv = SheetRegion::new(0, 0, 565, 4, 32, 32);
+            } else if (apple.arrow_dir == 1) {
+                *uv = SheetRegion::new(0, 33, 565, 4, 32, 32);
+            } else if (apple.arrow_dir == 2) {
+                *uv = SheetRegion::new(0, 66, 565, 4, 32, 32);
+            } else if (apple.arrow_dir == 3) {
+            *uv = SheetRegion::new(0, 99, 565, 4, 32, 32);
+            }
         }
         let sprite_count = apple_start + self.gamestate.arrows.len();
         let score_str = self.gamestate.score.to_string();
