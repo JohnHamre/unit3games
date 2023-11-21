@@ -3,7 +3,7 @@
 use engine as engine;
 use engine::wgpu;
 use engine::{geom::*, Camera, Engine, SheetRegion, Transform, Zeroable};
-use rand::Rng;
+//use rand::Rng;
 pub use engine::structs::Arrow;
 const W: f32 = 320.0;
 const H: f32 = 240.0;
@@ -13,11 +13,6 @@ const CATCH_DISTANCE: f32 = 16.0;
 const COLLISION_STEPS: usize = 3;
 struct Guy {
     pos: Vec2,
-}
-
-struct Apple {
-    pos: Vec2,
-    vel: Vec2,
 }
 
 struct GameState {
@@ -158,7 +153,7 @@ impl engine::Game for Game {
                 }
             }
         }
-        let mut rng = rand::thread_rng();
+        //let mut rng = rand::thread_rng();
         if self.gamestate.apple_timer > 0 {
             self.gamestate.apple_timer -= 1;
         } else if self.gamestate.arrows.len() < 8 {
@@ -236,14 +231,12 @@ impl engine::Game for Game {
                 size: Vec2 { x: 16.0, y: 16.0 },
             }
             .into();
-            if (apple.arrow_dir == 0) {
-                *uv = SheetRegion::new(0, 0, 565, 4, 32, 32);
-            } else if (apple.arrow_dir == 1) {
-                *uv = SheetRegion::new(0, 33, 565, 4, 32, 32);
-            } else if (apple.arrow_dir == 2) {
-                *uv = SheetRegion::new(0, 66, 565, 4, 32, 32);
-            } else if (apple.arrow_dir == 3) {
-            *uv = SheetRegion::new(0, 99, 565, 4, 32, 32);
+            match apple.arrow_dir {
+                0 => { *uv = SheetRegion::new(0, 0, 565, 4, 32, 32); }
+                1 => { *uv = SheetRegion::new(0, 33, 565, 4, 32, 32); }
+                2 => { *uv = SheetRegion::new(0, 66, 565, 4, 32, 32); }
+                3 => { *uv = SheetRegion::new(0, 99, 565, 4, 32, 32); }
+                _ => {}
             }
         }
         let sprite_count = apple_start + self.gamestate.arrows.len();
