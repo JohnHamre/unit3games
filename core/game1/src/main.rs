@@ -3,8 +3,10 @@
 use engine as engine;
 use engine::wgpu;
 use engine::{geom::*, Camera, Engine, SheetRegion, Transform, Zeroable};
+use engine::structs::*;
 //use rand::Rng;
 pub use engine::structs::Arrow;
+pub use std::collections::VecDeque;
 const W: f32 = 320.0;
 const H: f32 = 240.0;
 const GUY_SPEED: f32 = 4.0;
@@ -97,9 +99,12 @@ impl engine::Game for Game {
             font,
         }
     }
-    fn update(&mut self, engine: &mut Engine) {
+    fn update(&mut self, engine: &mut Engine, frame_events: &mut VecDeque<Box<dyn REvent>>) {
         let dir = engine.input.key_axis(engine::Key::Left, engine::Key::Right);
         self.gamestate.guy.pos.x += dir * GUY_SPEED;
+        for event in frame_events {
+            event.spawn_event();
+        }
         let mut contacts = Vec::with_capacity(self.gamestate.walls.len());
         // TODO: for multiple guys this might be better as flags on the guy for what side he's currently colliding with stuff on
         for _iter in 0..COLLISION_STEPS {

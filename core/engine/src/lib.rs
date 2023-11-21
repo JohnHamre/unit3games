@@ -10,7 +10,7 @@ pub use std::path::Path;
 pub use std::collections::VecDeque;
 pub trait Game: Sized + 'static {
     fn new(engine: &mut Engine) -> Self;
-    fn update(&mut self, engine: &mut Engine);
+    fn update(&mut self, engine: &mut Engine, frame_events: &mut VecDeque<Box<dyn REvent>>);
     fn render(&mut self, engine: &mut Engine);
 }
 
@@ -53,6 +53,7 @@ impl Engine {
     }
     pub fn run<G: Game>(mut self) {
         let mut game = G::new(&mut self);
+        let mut frame_events: VecDeque<Box<dyn REvent>> = VecDeque::new();
         load_stage(&mut self, "content/levels/test_stage.rchart");
         const DT: f32 = 1.0 / 240.0;
         const DT_FUDGE_AMOUNT: f32 = 0.000002;
@@ -95,33 +96,16 @@ impl Engine {
                             // simulate a frame
 
                             self.level_state.queue_timer += 1;
-
-                            let mut finished = false;
-    
-                            while !finished {
-                                if self.level_state.r_queue.len() > 0 {
-                                    match self.level_state.r_queue.get(0) {
-                                        Some(b) => {
-                                            if b.get_start_time() as i32 <= self.level_state.queue_timer {
-                                                b.spawn_event();
-                                            }
-                                            else {
-                                                finished = true;
-                                            }
-                                        }
-                                        _ => {}
-                                    }
-                                }
-                                else {
-                                    finished = true;
-                                }
-                                if !finished {
-                                    self.level_state.r_queue.pop_front();
-                                    println!("{}", self.level_state.queue_timer);
-                                }
+                            
+                            // Syntax, wow :o
+                            while self.level_state.r_queue.get(0).map(|event| event.get_start_time() <= self.level_state.queue_timer).unwrap_or(false)
+                            {
+                                frame_events.push_back(self.level_state.r_queue.pop_front().unwrap());
+                                println!("{}", self.level_state.queue_timer);
                             }
                             acc -= DT;
-                            game.update(&mut self);
+                            game.update(&mut self, &mut frame_events);
+                            frame_events.clear();
                             self.input.next_frame();
                         }
                         game.render(&mut self);
