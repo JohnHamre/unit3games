@@ -32,6 +32,7 @@ pub struct Engine {
 
 pub struct LevelState {
     pub loaded: bool,
+    pub queue_timer: i32,
     pub r_queue: VecDeque<Box<dyn REvent>>,
 }
 
@@ -73,6 +74,33 @@ impl Engine {
                         *control_flow = winit::event_loop::ControlFlow::Exit;
                     }
                     Event::MainEventsCleared => {
+                        self.level_state.queue_timer += 1;
+
+                        let mut finished = false;
+
+                        while !finished {
+                            if self.level_state.r_queue.len() > 0 {
+                                match self.level_state.r_queue.get(0) {
+                                    Some(b) => {
+                                        if b.get_start_time() as i32 <= self.level_state.queue_timer {
+                                            b.spawn_event();
+                                        }
+                                        else {
+                                            finished = true;
+                                        }
+                                    }
+                                    _ => {}
+                                }
+                            }
+                            else {
+                                finished = true;
+                            }
+                            if !finished {
+                                self.level_state.r_queue.pop_front();
+                                println!("{}", self.level_state.queue_timer);
+                            }
+                        }
+
                         // compute elapsed time since last frame
                         let mut elapsed = now.elapsed().as_secs_f32();
                         // println!("{elapsed}");
@@ -149,10 +177,11 @@ pub fn load_stage(engine: &mut Engine, filepath: &str) {
     }
     engine.level_state = LevelState {
         loaded: true,
+        queue_timer: - (240),
         r_queue: r_queue,
     };
 }
 
 fn empty_level_state() -> LevelState {
-    return LevelState { loaded: false, r_queue: VecDeque::new() };
+    return LevelState { loaded: false, queue_timer: 0, r_queue: VecDeque::new() };
 }
