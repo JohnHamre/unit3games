@@ -4,6 +4,7 @@ use engine as engine;
 use engine::wgpu;
 use engine::{geom::*, Camera, Engine, SheetRegion, Transform, Zeroable};
 use rand::Rng;
+pub use engine::structs::Arrow;
 const W: f32 = 320.0;
 const H: f32 = 240.0;
 const GUY_SPEED: f32 = 4.0;
@@ -229,7 +230,7 @@ impl engine::Game for Game {
                 size: Vec2 { x: 16.0, y: 16.0 },
             }
             .into();
-            *uv = SheetRegion::new(0, 0, 496, 4, 16, 16);
+            *uv = SheetRegion::new(0, 0, 565, 4, 32, 32);
         }
         let sprite_count = apple_start + self.gamestate.apples.len();
         let score_str = self.gamestate.score.to_string();
