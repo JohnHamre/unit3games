@@ -6,9 +6,6 @@ pub struct Arrow {
     pub vel: Vec2,
     pub rot: f32,
     pub spin: f32,
-    pub target: Vec2,
-    pub target_frame: usize,
-
 }
 
 impl Arrow {
