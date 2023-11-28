@@ -3,6 +3,7 @@ pub use frenderer::{
     input::{Input, Key},
     wgpu, BitFont, Frenderer, GPUCamera as Camera, SheetRegion, Transform,
 };
+pub use glam::*;
 use structs::{ArrowREvent, REvent};
 pub use std::fs::File;
 pub use std::io::{self, BufRead};

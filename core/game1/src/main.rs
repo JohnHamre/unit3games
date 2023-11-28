@@ -13,6 +13,7 @@ const GUY_SPEED: f32 = 4.0;
 const SPRITE_MAX: usize = 16;
 const CATCH_DISTANCE: f32 = 16.0;
 const COLLISION_STEPS: usize = 3;
+
 struct Guy {
     pos: Vec2,
 }
@@ -162,22 +163,19 @@ impl engine::Game for Game {
         if self.gamestate.apple_timer > 0 {
             self.gamestate.apple_timer -= 1;
         } else if self.gamestate.arrows.len() < 8 {
-            self.gamestate.arrows.push(Arrow {
-                pos: Vec2 {
+            spawn_arrow( 
+                self,
+                Vec2 {
                     //x: rng.gen_range(8.0..(W - 8.0)),
                     x: W/2.0,
                     y: H + 8.0,
                 },
-                vel: Vec2 {
+                Vec2 {
                     x: 0.0,
                     //y: rng.gen_range((-4.0)..(-1.0)),
                     y: -1.0,
                 },
-                rot: 0.0,
-                spin: 0.0,
-                arrow_dir: 1,
-                target_time:0,
-            });
+            0.0,0.0,1,0);
             self.gamestate.apple_timer = 100;
         }
         for apple in self.gamestate.arrows.iter_mut() {
@@ -274,6 +272,18 @@ impl engine::Game for Game {
             .set_camera_all(&engine.renderer.gpu, self.camera);
     }
 }
+
+fn spawn_arrow(game: &mut Game, pos: Vec2, velocity: Vec2, rotation: f32, spin: f32, arrow_dir: usize, target_time: i32) {
+    game.gamestate.arrows.push(Arrow {
+        pos: pos,
+        vel: velocity,
+        rot: rotation,
+        spin: spin,
+        arrow_dir: arrow_dir,
+        target_time: target_time,
+    });
+}
+
 fn main() {
     Engine::new(winit::window::WindowBuilder::new()).run::<Game>();
 }

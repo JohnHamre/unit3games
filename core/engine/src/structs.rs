@@ -6,7 +6,7 @@ pub struct Arrow {
     pub vel: Vec2,
     pub rot: f32,
     pub spin: f32,
-    pub target_time: usize,
+    pub target_time: i32,
     // 0 = left, 1 = right, 2 = up, 3 = down
     pub arrow_dir: usize,
 }
@@ -50,8 +50,8 @@ pub struct ArrowREvent {
 
 impl REvent for ArrowREvent {
     fn spawn_event(&self) {
-        // TODO
-        println!("Spawned arrow!");
+        // handled game side, so does nothing
+        //game.spawn_arrow(self.pos, self.vel, self.rot, self.spin, self.arrow_dir, self.target_time);
     }
 
     fn get_start_time(&self) -> i32 {
