@@ -40,19 +40,19 @@ impl engine::Game for Game {
         };
         #[cfg(target_arch = "wasm32")]
         let sprite_img = {
-            let img_bytes = include_bytes!("content/Sheet.png");
+            let img_bytes = include_bytes!("content/Sheet2.png");
             image::load_from_memory_with_format(&img_bytes, image::ImageFormat::Png)
                 .map_err(|e| e.to_string())
                 .unwrap()
                 .into_rgba8()
         };
         #[cfg(not(target_arch = "wasm32"))]
-        let sprite_img = image::open("content/Sheet.png").unwrap().into_rgba8();
+        let sprite_img = image::open("content/Sheet2.png").unwrap().into_rgba8();
         let sprite_tex = engine.renderer.gpu.create_texture(
             &sprite_img,
             wgpu::TextureFormat::Rgba8UnormSrgb,
             sprite_img.dimensions(),
-            Some("spr-Sheet.png"),
+            Some("spr-Sheet2.png"),
         );
         engine.renderer.sprites.add_sprite_group(
             &engine.renderer.gpu,
@@ -85,7 +85,7 @@ impl engine::Game for Game {
 
         let font = engine::BitFont::with_sheet_region(
             '0'..='9',
-            SheetRegion::new(0, 0, 512, 0, 80, 8),
+            SheetRegion::new(0, 221, 462, 12, 70, 10),
             10,
         );
         Game {
@@ -212,7 +212,7 @@ impl engine::Game for Game {
                 .zip(uvs[WALL_START..guy_idx].iter_mut()),
         ) {
             *trf = (*wall).into();
-            *uv = SheetRegion::new(0, 0, 480, 12, 8, 8);
+            *uv = SheetRegion::new(0, 0, 480, 12, 0, 0);
         }
         // set guy
         trfs[guy_idx] = AABB {
@@ -260,7 +260,7 @@ impl engine::Game for Game {
                 y: H - 16.0,
             }
             .into(),
-            16.0,
+            14.0,
         );
         engine
             .renderer
