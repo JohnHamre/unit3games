@@ -192,9 +192,46 @@ impl engine::Game for Game {
         self.gamestate.arrows.retain(|apple| apple.pos.y > -8.0)
     }
     fn render(&mut self, engine: &mut Engine) {
-        // set bg image
         let (trfs, uvs) = engine.renderer.sprites.get_sprites_mut(0);
+        // set 4 target arrows
         trfs[0] = AABB {
+            center: Vec2 {
+                x: 100.0,
+                y: H / 2.0,
+            },
+            size: Vec2 { x: 16.0, y: 16.0 },
+        }
+        .into();
+        uvs[0] = SheetRegion::new(0, 0, 464, 16, 32, 32);
+        trfs[1] = AABB {
+            center: Vec2 {
+                x: 150.0,
+                y: H / 2.0,
+            },
+            size: Vec2 { x: 16.0, y: 16.0 },
+        }
+        .into();
+        uvs[1] = SheetRegion::new(0, 34, 464, 16, 32, 32); 
+        trfs[2] = AABB {
+            center: Vec2 {
+                x: 200.0,
+                y: H / 2.0,
+            },
+            size: Vec2 { x: 16.0, y: 16.0 },
+        }
+        .into();
+        uvs[2] = SheetRegion::new(0, 66, 464, 16, 32, 32);
+        trfs[3] = AABB {
+            center: Vec2 {
+                x: 250.0,
+                y: H / 2.0,
+            },
+            size: Vec2 { x: 16.0, y: 16.0 },
+        }
+        .into();
+        uvs[3] = SheetRegion::new(0, 99, 464, 16, 32, 32);
+        // set bg
+        trfs[4] = AABB {
             center: Vec2 {
                 x: W / 2.0,
                 y: H / 2.0,
@@ -202,9 +239,9 @@ impl engine::Game for Game {
             size: Vec2 { x: W, y: H },
         }
         .into();
-        uvs[0] = SheetRegion::new(0, 0, 0, 16, 880, 440);
+        uvs[4] = SheetRegion::new(0, 0, 0, 16, 880, 440);
         // set walls
-        const WALL_START: usize = 1;
+        const WALL_START: usize = 5;
         let guy_idx = WALL_START + self.gamestate.walls.len();
         for (wall, (trf, uv)) in self.gamestate.walls.iter().zip(
             trfs[WALL_START..guy_idx]
@@ -236,7 +273,7 @@ impl engine::Game for Game {
             .into();
             match apple.arrow_dir {
                 0 => { *uv = SheetRegion::new(0, 0, 565, 4, 32, 32); }
-                1 => { *uv = SheetRegion::new(0, 33, 565, 4, 32, 32); }
+                1 => { *uv = SheetRegion::new(0, 34, 565, 4, 32, 32); }
                 2 => { *uv = SheetRegion::new(0, 66, 565, 4, 32, 32); }
                 3 => { *uv = SheetRegion::new(0, 99, 565, 4, 32, 32); }
                 _ => {}
