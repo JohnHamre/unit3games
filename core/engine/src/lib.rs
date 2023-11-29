@@ -73,6 +73,11 @@ impl Engine {
         -------------------------------------
          */
         load_stage(&mut self, "content/levels/test_stage.rchart");
+        /*
+        -------------------------------------
+            Stage Loading + Song Init        
+        -------------------------------------
+         */
         let mut song_player = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default()).unwrap();
         const DT: f32 = 1.0 / 240.0;
         const DT_FUDGE_AMOUNT: f32 = 0.000002;

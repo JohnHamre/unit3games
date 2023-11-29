@@ -1,6 +1,12 @@
 Song, content/levels/test_song.ogg
-# BPM Format: beats per minute, smallest subdivide (4 is 16th notes).
-BPM, 100, 4
+# BPM Format: beats per minute
+BPM, 130
 # Arrow Format: start_x, start_y, target_x, target_y, arrow_dir, start_time, target_time, start_rot, end_rot, cycles, texture_filepath, (tex_vec4)
-Arrow, 400.0, 0.0, 400.0, 400.0, 1, 144, 500, 0.0, 0.0, 0.0, content/arrows.png, 0.0, 0.0, 0.1667, 0.1667
-Arrow, 400.0, 0.0, 400.0, 400.0, 1, 288, 644, 0.0, 0.0, 0.0, content/arrows.png, 0.0, 0.0, 0.1667, 0.1667
+Arrow, 100.0, 0.0, 100.0, 400.0, 0, 0, 111, 0.0, 0.0, 0.0, content/arrows.png, 0.0, 0.0, 0.1667, 0.1667
+Arrow, 150.0, 0.0, 150.0, 400.0, 1, 111, 222, 0.0, 0.0, 0.0, content/arrows.png, 0.0, 0.0, 0.1667, 0.1667
+Arrow, 200.0, 0.0, 200.0, 400.0, 2, 222, 332, 0.0, 0.0, 0.0, content/arrows.png, 0.0, 0.0, 0.1667, 0.1667
+Arrow, 250.0, 0.0, 250.0, 400.0, 3, 332, 443, 0.0, 0.0, 0.0, content/arrows.png, 0.0, 0.0, 0.1667, 0.1667
+Arrow, 250.0, 0.0, 250.0, 400.0, 3, 443, 554, 0.0, 0.0, 0.0, content/arrows.png, 0.0, 0.0, 0.1667, 0.1667
+Arrow, 200.0, 0.0, 200.0, 400.0, 2, 554, 665, 0.0, 0.0, 0.0, content/arrows.png, 0.0, 0.0, 0.1667, 0.1667
+Arrow, 150.0, 0.0, 150.0, 400.0, 1, 665, 775, 0.0, 0.0, 0.0, content/arrows.png, 0.0, 0.0, 0.1667, 0.1667
+Arrow, 100.0, 0.0, 100.0, 400.0, 0, 775, 886, 0.0, 0.0, 0.0, content/arrows.png, 0.0, 0.0, 0.1667, 0.1667
