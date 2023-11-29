@@ -101,7 +101,6 @@ impl Engine {
                     Event::MainEventsCleared => {
                         // compute elapsed time since last frame
                         let mut elapsed = now.elapsed().as_secs_f32();
-                        // println!("{elapsed}");
                         // snap time to nearby vsync framerate
                         TIME_SNAPS.iter().for_each(|s| {
                             if (elapsed - 1.0 / s).abs() < DT_FUDGE_AMOUNT {
@@ -138,7 +137,6 @@ impl Engine {
                                     Some(REvent::ArrowEvent(a)) => {
                                         if a.get_start_time() <= self.level_state.queue_timer {
                                             frame_events.push_back(self.level_state.r_queue.pop_front().unwrap());
-                                            println!("{}", self.level_state.queue_timer);
                                         }
                                         else {
                                             break;
@@ -147,7 +145,6 @@ impl Engine {
                                     None => {break;}
                                     _ => {                                            
                                         frame_events.push_back(self.level_state.r_queue.pop_front().unwrap());
-                                        println!("{}", self.level_state.queue_timer);
                                     }
                                 }
                             }
