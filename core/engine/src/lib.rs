@@ -9,6 +9,13 @@ pub use std::fs::File;
 pub use std::io::{self, BufRead};
 pub use std::path::Path;
 pub use std::collections::VecDeque;
+use kira::{
+	manager::{
+		AudioManager, AudioManagerSettings,
+		backend::DefaultBackend,
+	},
+	sound::static_sound::{StaticSoundData, StaticSoundSettings}
+};
 
 use crate::structs::Spawnable;
 pub trait Game: Sized + 'static {
@@ -29,6 +36,7 @@ pub struct Engine {
     pub renderer: Frenderer,
     pub input: Input,
     pub level_state: LevelState,
+    pub song_name: String,
     event_loop: Option<winit::event_loop::EventLoop<()>>,
     window: winit::window::Window,
 }
@@ -44,12 +52,14 @@ impl Engine {
         let event_loop = winit::event_loop::EventLoop::new();
         let window = builder.build(&event_loop).unwrap();
         let level_state = empty_level_state();
+        let song_name: String = "".to_string();
         let renderer = frenderer::with_default_runtime(&window);
         let input = Input::default();
         Self {
             renderer,
             input,
             level_state,
+            song_name,
             window,
             event_loop: Some(event_loop),
         }
@@ -57,7 +67,13 @@ impl Engine {
     pub fn run<G: Game>(mut self) {
         let mut game = G::new(&mut self);
         let mut frame_events: VecDeque<REvent> = VecDeque::new();
+        /*
+        -------------------------------------
+            Stage Loading + Song Init        
+        -------------------------------------
+         */
         load_stage(&mut self, "content/levels/test_stage.rchart");
+        let mut song_player = AudioManager::<DefaultBackend>::new(AudioManagerSettings::default()).unwrap();
         const DT: f32 = 1.0 / 240.0;
         const DT_FUDGE_AMOUNT: f32 = 0.000002;
         const DT_MAX: f32 = DT * 5.0;
@@ -99,6 +115,15 @@ impl Engine {
                             // simulate a frame
 
                             self.level_state.queue_timer += 1;
+
+                            // Start the song
+                            if self.level_state.queue_timer == 0 {
+                                let sound_data =
+                                    StaticSoundData::from_file(&self.song_name, 
+                                    StaticSoundSettings::default()).unwrap();
+
+                                let _ = song_player.play(sound_data.clone());
+                            }
 
                             // Syntax, wow :o
                             // self.level_state.r_queue.get(0).map(|event| event.get_start_time() <= self.level_state.queue_timer).unwrap_or(false)
@@ -161,7 +186,7 @@ pub fn load_stage(engine: &mut Engine, filepath: &str) {
                 if params.len() > 0 {
                     match params[0] {
                         "Song" => {
-    
+                            engine.song_name = params[1].to_string();
                         }
                         "BPM" => {
                             // TODO Set BPM

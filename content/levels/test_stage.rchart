@@ -1,4 +1,4 @@
-Song, Songfile.mp3
+Song, content/levels/test_song.ogg
 # BPM Format: beats per minute, smallest subdivide (4 is 16th notes).
 BPM, 100, 4
 # Arrow Format: start_x, start_y, target_x, target_y, arrow_dir, start_time, target_time, start_rot, end_rot, cycles, texture_filepath, (tex_vec4)
