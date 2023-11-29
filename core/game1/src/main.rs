@@ -100,11 +100,11 @@ impl engine::Game for Game {
             font,
         }
     }
-    fn update(&mut self, engine: &mut Engine, frame_events: &mut VecDeque<Box<dyn REvent>>) {
+    fn update(&mut self, engine: &mut Engine, frame_events: &mut VecDeque<REvent>) {
         let dir = engine.input.key_axis(engine::Key::Left, engine::Key::Right);
         self.gamestate.guy.pos.x += dir * GUY_SPEED;
-        for event in frame_events {
-            event.spawn_event();
+        for event in frame_events.drain(..) {
+            spawn_event(self, event);
         }
         let mut contacts = Vec::with_capacity(self.gamestate.walls.len());
         // TODO: for multiple guys this might be better as flags on the guy for what side he's currently colliding with stuff on
@@ -163,28 +163,28 @@ impl engine::Game for Game {
         if self.gamestate.apple_timer > 0 {
             self.gamestate.apple_timer -= 1;
         } else if self.gamestate.arrows.len() < 8 {
-            spawn_arrow( 
-                self,
-                Vec2 {
-                    //x: rng.gen_range(8.0..(W - 8.0)),
-                    x: W/2.0,
-                    y: H + 8.0,
-                },
-                Vec2 {
-                    x: 0.0,
-                    //y: rng.gen_range((-4.0)..(-1.0)),
-                    y: -1.0,
-                },
-            0.0,0.0,1,0);
+            // spawn_arrow( 
+            //     self,
+            //     Vec2 {
+            //         //x: rng.gen_range(8.0..(W - 8.0)),
+            //         x: W/2.0,
+            //         y: H + 8.0,
+            //     },
+            //     Vec2 {
+            //         x: 0.0,
+            //         //y: rng.gen_range((-4.0)..(-1.0)),
+            //         y: -1.0,
+            //     },
+            // 0.0,0.0,1,0);
             self.gamestate.apple_timer = 100;
         }
-        for apple in self.gamestate.arrows.iter_mut() {
-            apple.pos += apple.vel;
+        for arrow in self.gamestate.arrows.iter_mut() {
+            arrow.pos += arrow.vel;
         }
         if let Some(idx) = self.gamestate
             .arrows
             .iter()
-            .position(|apple| apple.pos.distance(self.gamestate.guy.pos) <= CATCH_DISTANCE)
+            .position(|arrow: &Arrow| arrow.pos.distance(self.gamestate.guy.pos) <= CATCH_DISTANCE)
         {
             self.gamestate.arrows.swap_remove(idx);
             self.gamestate.score += 1;
@@ -273,15 +273,18 @@ impl engine::Game for Game {
     }
 }
 
-fn spawn_arrow(game: &mut Game, pos: Vec2, velocity: Vec2, rotation: f32, spin: f32, arrow_dir: usize, target_time: i32) {
-    game.gamestate.arrows.push(Arrow {
-        pos: pos,
-        vel: velocity,
-        rot: rotation,
-        spin: spin,
-        arrow_dir: arrow_dir,
-        target_time: target_time,
-    });
+fn spawn_arrow(game: &mut Game, arrow: Arrow) {
+    game.gamestate.arrows.push(arrow);
+    println!("{:?}", game.gamestate.arrows.get(0).unwrap());
+}
+
+fn spawn_event(game: &mut Game, event: REvent) {
+    match event {
+        REvent::ArrowEvent(a) => {
+            spawn_arrow(game, a);
+        }
+        _ => {}
+    }
 }
 
 fn main() {

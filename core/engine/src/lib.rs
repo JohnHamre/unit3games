@@ -4,14 +4,16 @@ pub use frenderer::{
     wgpu, BitFont, Frenderer, GPUCamera as Camera, SheetRegion, Transform,
 };
 pub use glam::*;
-use structs::{ArrowREvent, REvent};
+use structs::{REvent, Arrow};
 pub use std::fs::File;
 pub use std::io::{self, BufRead};
 pub use std::path::Path;
 pub use std::collections::VecDeque;
+
+use crate::structs::Spawnable;
 pub trait Game: Sized + 'static {
     fn new(engine: &mut Engine) -> Self;
-    fn update(&mut self, engine: &mut Engine, frame_events: &mut VecDeque<Box<dyn REvent>>);
+    fn update(&mut self, engine: &mut Engine, frame_events: &mut VecDeque<REvent>);
     fn render(&mut self, engine: &mut Engine);
 }
 
@@ -34,7 +36,7 @@ pub struct Engine {
 pub struct LevelState {
     pub loaded: bool,
     pub queue_timer: i32,
-    pub r_queue: VecDeque<Box<dyn REvent>>,
+    pub r_queue: VecDeque<REvent>,
 }
 
 impl Engine {
@@ -54,7 +56,7 @@ impl Engine {
     }
     pub fn run<G: Game>(mut self) {
         let mut game = G::new(&mut self);
-        let mut frame_events: VecDeque<Box<dyn REvent>> = VecDeque::new();
+        let mut frame_events: VecDeque<REvent> = VecDeque::new();
         load_stage(&mut self, "content/levels/test_stage.rchart");
         const DT: f32 = 1.0 / 240.0;
         const DT_FUDGE_AMOUNT: f32 = 0.000002;
@@ -97,12 +99,27 @@ impl Engine {
                             // simulate a frame
 
                             self.level_state.queue_timer += 1;
-                            
+
                             // Syntax, wow :o
-                            while self.level_state.r_queue.get(0).map(|event| event.get_start_time() <= self.level_state.queue_timer).unwrap_or(false)
+                            // self.level_state.r_queue.get(0).map(|event| event.get_start_time() <= self.level_state.queue_timer).unwrap_or(false)
+                            loop
                             {
-                                frame_events.push_back(self.level_state.r_queue.pop_front().unwrap());
-                                println!("{}", self.level_state.queue_timer);
+                                match self.level_state.r_queue.get(0) {
+                                    Some(REvent::ArrowEvent(a)) => {
+                                        if a.get_start_time() <= self.level_state.queue_timer {
+                                            frame_events.push_back(self.level_state.r_queue.pop_front().unwrap());
+                                            println!("{}", self.level_state.queue_timer);
+                                        }
+                                        else {
+                                            break;
+                                        }
+                                    }
+                                    None => {break;}
+                                    _ => {                                            
+                                        frame_events.push_back(self.level_state.r_queue.pop_front().unwrap());
+                                        println!("{}", self.level_state.queue_timer);
+                                    }
+                                }
                             }
                             acc -= DT;
                             game.update(&mut self, &mut frame_events);
@@ -132,7 +149,7 @@ pub mod geom;
 pub mod structs;
 
 pub fn load_stage(engine: &mut Engine, filepath: &str) {
-    let mut r_queue: VecDeque<Box<dyn REvent>> = VecDeque::new();
+    let mut r_queue: VecDeque<REvent> = VecDeque::new();
     if let Ok(lines) = read_lines(filepath) {
         // Consumes the iterator, returns an (Optional) String
         for line in lines {
@@ -150,9 +167,9 @@ pub fn load_stage(engine: &mut Engine, filepath: &str) {
                             // TODO Set BPM
                         }
                         "Arrow" => {
-                            let mut e = ArrowREvent::zeroed();
+                            let mut e = Arrow::zeroed();
                             e.load_event_from_string(params);
-                            r_queue.push_back(Box::new(e));
+                            r_queue.push_back(REvent::ArrowEvent(e));
                         }
                         _ => {}
                     }
