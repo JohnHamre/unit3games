@@ -85,7 +85,7 @@ impl engine::Game for Game {
 
         let font = engine::BitFont::with_sheet_region(
             '0'..='9',
-            SheetRegion::new(0, 221, 462, 12, 70, 10),
+            SheetRegion::new(0, 220, 464, 12, 70, 10),
             10,
         );
         Game {
