@@ -206,7 +206,7 @@ pub fn load_stage(engine: &mut Engine, filepath: &str) {
     }
     engine.level_state = LevelState {
         loaded: true,
-        queue_timer: - (240),
+        queue_timer: - (400),
         r_queue: r_queue,
     };
 }
