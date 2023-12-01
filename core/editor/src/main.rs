@@ -1,5 +1,5 @@
 // TODO: use AABB instead of Rect for centered box, so collision checking doesn't have to offset by half size
-
+use std::fs;
 use engine as engine;
 use engine::wgpu;
 use engine::{geom::*, Camera, Engine, SheetRegion, Transform, Zeroable};
@@ -56,6 +56,21 @@ impl engine::Game for Game {
             SheetRegion::new(0, 220, 464, 12, 70, 10),
             10,
         );
+        let paths = fs::read_dir("content/levels/").unwrap();
+        for path in paths {
+            let p1 = path.unwrap().path();
+            let p_str = p1.to_str().unwrap();
+            if p_str.len() > 7 {
+                let last_seven = {
+                    let split_pos = p_str.char_indices().nth_back(6).unwrap().0;
+                    &p_str[split_pos..]
+                };
+                if ".rchart" == last_seven {
+                    // Store to array instead of print.
+                    println!("Name: {}", p_str);
+                }
+            }
+        }
         Game {
             camera,
             gamestate: GameState {
