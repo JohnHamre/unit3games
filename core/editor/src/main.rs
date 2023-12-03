@@ -11,14 +11,26 @@ const W: f32 = 320.0;
 const H: f32 = 240.0;
 const SPRITE_MAX: usize = 16;
 
-struct GameState {
-    arrows: Vec<Arrow>,
+struct TargetData {
+    pos: Vec2,
+    arrow_dir: i32,
+}
+
+#[derive(Zeroable, Debug, Copy, Clone)]
+struct ArrowData {
+    start_pos: Vec2,
+    time: i32,
+    arrow_dir: usize,
 }
 
 struct Game {
     camera: engine::Camera,
-    gamestate: GameState,
+    targets: Vec<TargetData>,
     font: engine::BitFont,
+    arrows0: Vec<ArrowData>,
+    arrows1: Vec<ArrowData>,
+    arrows2: Vec<ArrowData>,
+    arrows3: Vec<ArrowData>,
 }
 
 impl engine::Game for Game {
@@ -71,20 +83,43 @@ impl engine::Game for Game {
                 }
             }
         }
+        let mut targets = Vec::new();
+        for i in 0..=3 {
+            targets.push(TargetData{pos: Vec2::new(100.0 + 24.0 * i as f32, 200.0), arrow_dir: i});
+        }
         Game {
             camera,
-            gamestate: GameState {
-                arrows: Vec::with_capacity(16),
-            },
+            targets,
             font,
+            arrows0: Vec::new(),
+            arrows1: Vec::new(),
+            arrows2: Vec::new(),
+            arrows3: Vec::new(),
         }
     }
-    fn update(&mut self, _engine: &mut Engine, _frame_events: &mut VecDeque<REvent>) {
+    fn update(&mut self, engine: &mut Engine, _frame_events: &mut VecDeque<REvent>) {
         //let dir = engine.input.key_axis(engine::Key::Left, engine::Key::Right);
-        for _arrow in self.gamestate.arrows.iter_mut() {
-            // arrow.pos += arrow.vel;
+        let mouse_pos = engine.input.mouse_pos();
+        let mut col = 4;
+        if mouse_pos.y >= 128.0 {
+            if mouse_pos.x <= 60.0 {
+                col = 0;
+            }
+            else if mouse_pos.x <= 120.0 {
+                col = 1;
+            }
+            else if mouse_pos.x <= 180.0 {
+                col = 2;
+            }
+            else if mouse_pos.x <= 240.0 {
+                col = 3;
+            }
         }
-        self.gamestate.arrows.retain(|apple| apple.pos.y > -8.0)
+        if col < 4 {
+            if engine.input.is_mouse_pressed(winit::event::MouseButton::Left) {
+                spawn_arrow(self, col, mouse_pos.y)
+            }
+        }
     }
     fn render(&mut self, engine: &mut Engine) {
         // set bg image
@@ -101,18 +136,18 @@ impl engine::Game for Game {
         // TODO animation frame
         uvs[1] = SheetRegion::new(0, 16, 480, 8, 16, 16);
         // set apple
-        let apple_start = 1 + 1;
-        for (apple, (trf, uv)) in self.gamestate.arrows.iter().zip(
+        let mut apple_start = 1 + 1;
+        for(target, (trf, uv)) in self.targets.iter().zip(
             trfs[apple_start..]
                 .iter_mut()
                 .zip(uvs[apple_start..].iter_mut()),
         ) {
             *trf = AABB {
-                center: apple.pos,
+                center: Vec2::new(target.pos.x - 88.0, target.pos.y),
                 size: Vec2 { x: 16.0, y: 16.0 },
             }
             .into();
-            match apple.arrow_dir {
+            match target.arrow_dir {
                 0 => { *uv = SheetRegion::new(0, 0, 565, 4, 32, 32); }
                 1 => { *uv = SheetRegion::new(0, 33, 565, 4, 32, 32); }
                 2 => { *uv = SheetRegion::new(0, 66, 565, 4, 32, 32); }
@@ -120,8 +155,43 @@ impl engine::Game for Game {
                 _ => {}
             }
         }
-        let sprite_count = apple_start + self.gamestate.arrows.len();
-        let score_str = "0123".to_string();
+        apple_start = apple_start + self.targets.len();
+
+        let mut arrowset: Vec<ArrowData> = Vec::new();
+        for arrow in self.arrows0.iter() {
+            arrowset.push(*arrow);
+        }
+        for arrow in self.arrows1.iter() {
+            arrowset.push(*arrow);
+        }
+        for arrow in self.arrows2.iter() {
+            arrowset.push(*arrow);
+        }
+        for arrow in self.arrows3.iter() {
+            arrowset.push(*arrow);
+        }
+
+        for(arrow, (trf, uv)) in arrowset.iter().zip(
+            trfs[apple_start..]
+                .iter_mut()
+                .zip(uvs[apple_start..].iter_mut()),
+        ) {
+            *trf = AABB {
+                center: Vec2::new(arrow.start_pos.x - 88.0, arrow.start_pos.y),
+                size: Vec2 { x: 16.0, y: 16.0 },
+            }
+            .into();
+            match arrow.arrow_dir {
+                0 => { *uv = SheetRegion::new(0, 0, 565, 4, 32, 32); }
+                1 => { *uv = SheetRegion::new(0, 33, 565, 4, 32, 32); }
+                2 => { *uv = SheetRegion::new(0, 66, 565, 4, 32, 32); }
+                3 => { *uv = SheetRegion::new(0, 99, 565, 4, 32, 32); }
+                _ => {}
+            }
+        }
+        apple_start += arrowset.len();
+        let sprite_count = apple_start;
+        let score_str: String = "".to_string();
         let text_len = score_str.len();
         engine.renderer.sprites.resize_sprite_group(
             &engine.renderer.gpu,
@@ -148,6 +218,33 @@ impl engine::Game for Game {
             .renderer
             .sprites
             .set_camera_all(&engine.renderer.gpu, self.camera);
+    }
+}
+
+fn spawn_arrow (game: &mut Game, dir: usize, mouse_y: f64) {
+    let arrow = ArrowData {
+        start_pos: Vec2::new(dir as f32 * 24.0 + 100.0, ((mouse_y - 600.0) as f32).abs() * (240.0 / 600.0)),
+        time: 300,
+        arrow_dir: dir,
+    };
+    match dir {
+        0 => {
+            game.arrows0.push(arrow);
+            game.arrows0.sort_by_key(|a| a.start_pos.y as i32);
+        }
+        1 => {
+            game.arrows1.push(arrow);
+            game.arrows1.sort_by_key(|a| a.start_pos.y as i32);
+        }
+        2 => {
+            game.arrows2.push(arrow);
+            game.arrows2.sort_by_key(|a| a.start_pos.y as i32);
+        }
+        3 => {
+            game.arrows3.push(arrow);
+            game.arrows3.sort_by_key(|a| a.start_pos.y as i32);
+        }
+        _ => {}
     }
 }
 

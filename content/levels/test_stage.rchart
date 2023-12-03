@@ -1,6 +1,6 @@
 Song, content/levels/test_song.ogg
-# BPM Format: beats per minute
-BPM, 130
+# BPM Format: beats per minute, num beats in song
+BPM, 130, 520
 # Arrow Format: start_x, start_y, target_x, target_y, arrow_dir, start_time, target_time, start_rot, end_rot, cycles, texture_filepath, (tex_vec4)
 Arrow, 100.0, 0.0, 100.0, 200.0, 0, -111, 0, 0.0, 0.0, 0.0, content/arrows.png, 0.0, 0.0, 0.1667, 0.1667
 Arrow, 150.0, 0.0, 150.0, 200.0, 1, 0, 111, 0.0, 0.0, 0.0, content/arrows.png, 0.0, 0.0, 0.1667, 0.1667
