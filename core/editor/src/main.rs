@@ -135,8 +135,18 @@ impl engine::Game for Game {
         uvs[0] = SheetRegion::new(0, 0, 0, 16, 880, 440);
         // TODO animation frame
         uvs[1] = SheetRegion::new(0, 16, 480, 8, 16, 16);
+        let (trfs, uvs) = engine.renderer.sprites.get_sprites_mut(0);
+        trfs[2] = AABB {
+            center: Vec2 {
+                x: 48.0,
+                y: 119.0,
+            },
+            size: Vec2 { x: 96.0, y: 131.0},
+        }
+        .into();
+        uvs[2] = SheetRegion::new(0, 800, 448, 8, 96, 131);
         // set apple
-        let mut apple_start = 1 + 1;
+        let mut apple_start = 3;
         for(target, (trf, uv)) in self.targets.iter().zip(
             trfs[apple_start..]
                 .iter_mut()
@@ -157,6 +167,7 @@ impl engine::Game for Game {
         }
         apple_start = apple_start + self.targets.len();
 
+        // Compacting this to counter a really oddly specific bug.
         let mut arrowset: Vec<ArrowData> = Vec::new();
         for arrow in self.arrows0.iter() {
             arrowset.push(*arrow);
@@ -178,7 +189,7 @@ impl engine::Game for Game {
         ) {
             *trf = AABB {
                 center: Vec2::new(arrow.start_pos.x - 88.0, arrow.start_pos.y),
-                size: Vec2 { x: 16.0, y: 16.0 },
+                size: Vec2 { x: 4.0, y: 4.0 },
             }
             .into();
             match arrow.arrow_dir {
@@ -222,25 +233,32 @@ impl engine::Game for Game {
 }
 
 fn spawn_arrow (game: &mut Game, dir: usize, mouse_y: f64) {
+    let mut arrow_y_val = ((mouse_y - 600.0) as f32).abs() * (240.0 / 600.0);
+    arrow_y_val = ((arrow_y_val) / 4.0).round() * 4.0;
+    println!("{}", arrow_y_val);
     let arrow = ArrowData {
-        start_pos: Vec2::new(dir as f32 * 24.0 + 100.0, ((mouse_y - 600.0) as f32).abs() * (240.0 / 600.0)),
+        start_pos: Vec2::new(dir as f32 * 24.0 + 100.0, arrow_y_val),
         time: 300,
         arrow_dir: dir,
     };
     match dir {
         0 => {
+            game.arrows0.retain(|i| i.start_pos.y as i32 != arrow_y_val as i32);
             game.arrows0.push(arrow);
             game.arrows0.sort_by_key(|a| a.start_pos.y as i32);
         }
         1 => {
+            game.arrows1.retain(|i| i.start_pos.y as i32 != arrow_y_val as i32);
             game.arrows1.push(arrow);
             game.arrows1.sort_by_key(|a| a.start_pos.y as i32);
         }
         2 => {
+            game.arrows2.retain(|i| i.start_pos.y as i32 != arrow_y_val as i32);
             game.arrows2.push(arrow);
             game.arrows2.sort_by_key(|a| a.start_pos.y as i32);
         }
         3 => {
+            game.arrows3.retain(|i| i.start_pos.y as i32 != arrow_y_val as i32);
             game.arrows3.push(arrow);
             game.arrows3.sort_by_key(|a| a.start_pos.y as i32);
         }
