@@ -297,24 +297,36 @@ fn spawn_arrow (game: &mut Game, dir: usize, mouse_y: f64) {
     };
     match dir {
         0 => {
+            let initlen = game.arrows0.len();
             game.arrows0.retain(|i| i.start_pos.y as i32 != arrow_y_val as i32);
-            game.arrows0.push(arrow);
-            game.arrows0.sort_by_key(|a| a.location());
+            if game.arrows0.len() == initlen {
+                game.arrows0.push(arrow);
+                game.arrows0.sort_by_key(|a| a.location());
+            }
         }
         1 => {
+            let initlen = game.arrows1.len();
             game.arrows1.retain(|i| i.start_pos.y as i32 != arrow_y_val as i32);
-            game.arrows1.push(arrow);
-            game.arrows1.sort_by_key(|a| a.location());
+            if game.arrows1.len() == initlen {
+                game.arrows1.push(arrow);
+                game.arrows1.sort_by_key(|a| a.location());
+            }
         }
         2 => {
+            let initlen = game.arrows2.len();
             game.arrows2.retain(|i| i.start_pos.y as i32 != arrow_y_val as i32);
-            game.arrows2.push(arrow);
-            game.arrows2.sort_by_key(|a| a.location());
+            if game.arrows2.len() == initlen {
+                game.arrows2.push(arrow);
+                game.arrows2.sort_by_key(|a| a.location());
+            }
         }
         3 => {
+            let initlen = game.arrows3.len();
             game.arrows3.retain(|i| i.start_pos.y as i32 != arrow_y_val as i32);
-            game.arrows3.push(arrow);
-            game.arrows3.sort_by_key(|a| a.location());
+            if game.arrows3.len() == initlen {
+                game.arrows3.push(arrow);
+                game.arrows3.sort_by_key(|a| a.location());
+            }
         }
         _ => {}
     }
