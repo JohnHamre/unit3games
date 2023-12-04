@@ -1,5 +1,6 @@
 // TODO: use AABB instead of Rect for centered box, so collision checking doesn't have to offset by half size
 use std::fs;
+use std::io::Write;
 use engine as engine;
 use engine::wgpu;
 use engine::{geom::*, Camera, Engine, SheetRegion, Transform, Zeroable};
@@ -16,11 +17,19 @@ struct TargetData {
     arrow_dir: i32,
 }
 
+#[derive(Zeroable, Debug, Clone, Copy)]
+struct TemporalMarker {
+    measure: usize,
+    beat: usize,
+    sixteenth: usize,
+}
+
 #[derive(Zeroable, Debug, Copy, Clone)]
 struct ArrowData {
     start_pos: Vec2,
-    time: i32,
+    travel_time: i32,
     arrow_dir: usize,
+    target_time: TemporalMarker,
 }
 
 struct Game {
@@ -31,6 +40,11 @@ struct Game {
     arrows1: Vec<ArrowData>,
     arrows2: Vec<ArrowData>,
     arrows3: Vec<ArrowData>,
+    current_measure: usize,
+    output_filepath: String,
+    song: String,
+    bpm: usize,
+    num_beats: usize,
 }
 
 impl engine::Game for Game {
@@ -95,13 +109,18 @@ impl engine::Game for Game {
             arrows1: Vec::new(),
             arrows2: Vec::new(),
             arrows3: Vec::new(),
+            current_measure: 0,
+            output_filepath: "test_chart_2".to_string(),
+            song: "test_song.ogg".to_string(),
+            bpm: 130,
+            num_beats: 10,
         }
     }
     fn update(&mut self, engine: &mut Engine, _frame_events: &mut VecDeque<REvent>) {
         //let dir = engine.input.key_axis(engine::Key::Left, engine::Key::Right);
         let mouse_pos = engine.input.mouse_pos();
         let mut col = 4;
-        if mouse_pos.y >= 128.0 {
+        if mouse_pos.y >= 136.0 && mouse_pos.y <= 463.0 {
             if mouse_pos.x <= 60.0 {
                 col = 0;
             }
@@ -119,6 +138,9 @@ impl engine::Game for Game {
             if engine.input.is_mouse_pressed(winit::event::MouseButton::Left) {
                 spawn_arrow(self, col, mouse_pos.y)
             }
+        }
+        if engine.input.is_key_pressed(winit::event::VirtualKeyCode::Space) {
+            export_stage(self);
         }
     }
     fn render(&mut self, engine: &mut Engine) {
@@ -236,10 +258,26 @@ fn spawn_arrow (game: &mut Game, dir: usize, mouse_y: f64) {
     let mut arrow_y_val = ((mouse_y - 600.0) as f32).abs() * (240.0 / 600.0);
     arrow_y_val = ((arrow_y_val) / 4.0).round() * 4.0;
     println!("{}", arrow_y_val);
+
+    let underbar = (arrow_y_val - 184.0).abs();
+
+    let measure = game.current_measure + (underbar / 64.0) as usize;
+    let beat = ((underbar % 64.0) / 16.0) as usize;
+    let sixteenth = ((underbar % 16.0) / 4.0) as usize;
+
+    let target_time = TemporalMarker { 
+        measure: measure, 
+        beat: beat, 
+        sixteenth: sixteenth as usize,
+    };
+
+    println!("{}, {}, {}", target_time.measure, target_time.beat, target_time.sixteenth);
+
     let arrow = ArrowData {
         start_pos: Vec2::new(dir as f32 * 24.0 + 100.0, arrow_y_val),
-        time: 300,
+        travel_time: 300,
         arrow_dir: dir,
+        target_time: target_time,
     };
     match dir {
         0 => {
@@ -264,6 +302,43 @@ fn spawn_arrow (game: &mut Game, dir: usize, mouse_y: f64) {
         }
         _ => {}
     }
+}
+
+fn export_stage(game: &mut Game) {
+    let mut arrowset: Vec<ArrowData> = Vec::new();
+    for arrow in game.arrows0.iter() {
+        arrowset.push(*arrow);
+    }
+    for arrow in game.arrows1.iter() {
+        arrowset.push(*arrow);
+    }
+    for arrow in game.arrows2.iter() {
+        arrowset.push(*arrow);
+    }
+    for arrow in game.arrows3.iter() {
+        arrowset.push(*arrow);
+    }
+    arrowset.sort_by_key(|a| -a.start_pos.y as i32);
+
+    std::fs::File::create("content/levels/".to_owned() + &game.output_filepath + ".rchart").unwrap();
+
+    let mut file = std::fs::OpenOptions::new().write(true).truncate(true).open("content/levels/".to_owned() + &game.output_filepath + ".rchart").unwrap();
+    file.write(("Song, content/levels/".to_owned() + &game.song).as_bytes()).unwrap();
+    file.write(("\nBPM, ".to_owned() + &game.bpm.to_string() + ", " + &game.num_beats.to_string()).as_bytes()).unwrap();
+    for arrow in arrowset {
+        let target_time = ((14400.0 / (4.0 * game.bpm as f64)) * (arrow.target_time.sixteenth + 4 * arrow.target_time.beat + 16 * arrow.target_time.measure) as f64).round() as i32;
+
+        file.write((
+            "\nArrow, ".to_owned() + 
+            &(match arrow.arrow_dir {0 => {100.0} 1 => {150.0} 2 => {200.0} 3 => {250.0} _ => {300.0}}).to_string() + ", 0.0, " +
+            &(match arrow.arrow_dir {0 => {100.0} 1 => {150.0} 2 => {200.0} 3 => {250.0} _ => {300.0}}).to_string() + ", 200.0, " +
+            &arrow.arrow_dir.to_string() + ", " +
+            &(target_time - arrow.travel_time).to_string() + ", " +
+            &target_time.to_string() + ", " +
+            "0.0, 0.0, 0.0, content/arrows.png, 0.0, 0.0, 0.1667, 0.1667"
+        ).as_bytes()).unwrap();
+    }
+    file.flush().unwrap();
 }
 
 fn main() {

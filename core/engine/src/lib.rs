@@ -72,7 +72,7 @@ impl Engine {
             Stage Loading + Song Init        
         -------------------------------------
          */
-        load_stage(&mut self, "content/levels/test_stage.rchart");
+        load_stage(&mut self, "content/levels/test_chart_2.rchart");
         /*
         -------------------------------------
             Stage Loading + Song Init        
