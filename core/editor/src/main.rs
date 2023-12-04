@@ -116,9 +116,9 @@ impl engine::Game for Game {
             arrows2: Vec::new(),
             arrows3: Vec::new(),
             current_measure: 0,
-            output_filepath: "test_chart_2".to_string(),
-            song: "test_song.ogg".to_string(),
-            bpm: 130,
+            output_filepath: "bill_nye".to_string(),
+            song: "william_overture.ogg".to_string(),
+            bpm: 131,
             num_beats: 10,
         }
     }
@@ -279,7 +279,7 @@ fn spawn_arrow (game: &mut Game, dir: usize, mouse_y: f64) {
     arrow_y_val = arrow_y_val - 64.0 * game.current_measure as f32;
     let underbar = (arrow_y_val - 184.0).abs();
 
-    let measure = game.current_measure + (underbar / 64.0) as usize;
+    let measure = (underbar / 64.0) as usize;
     let beat = ((underbar % 64.0) / 16.0) as usize;
     let sixteenth = ((underbar % 16.0) / 4.0) as usize;
 
@@ -295,6 +295,7 @@ fn spawn_arrow (game: &mut Game, dir: usize, mouse_y: f64) {
         arrow_dir: dir,
         target_time: target_time,
     };
+
     match dir {
         0 => {
             let initlen = game.arrows0.len();
