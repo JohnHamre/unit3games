@@ -32,6 +32,12 @@ struct ArrowData {
     target_time: TemporalMarker,
 }
 
+impl ArrowData {
+    fn location(&self) -> usize {
+        return self.target_time.sixteenth + 4 * self.target_time.beat + 16 * self.target_time.measure;
+    }
+}
+
 struct Game {
     camera: engine::Camera,
     targets: Vec<TargetData>,
@@ -93,7 +99,7 @@ impl engine::Game for Game {
                 };
                 if ".rchart" == last_seven {
                     // Store to array instead of print.
-                    println!("Name: {}", p_str);
+                    //println!("Name: {}", p_str);
                 }
             }
         }
@@ -118,6 +124,8 @@ impl engine::Game for Game {
     }
     fn update(&mut self, engine: &mut Engine, _frame_events: &mut VecDeque<REvent>) {
         //let dir = engine.input.key_axis(engine::Key::Left, engine::Key::Right);
+
+        // Add note
         let mouse_pos = engine.input.mouse_pos();
         let mut col = 4;
         if mouse_pos.y >= 136.0 && mouse_pos.y <= 463.0 {
@@ -139,6 +147,17 @@ impl engine::Game for Game {
                 spawn_arrow(self, col, mouse_pos.y)
             }
         }
+
+        if engine.input.is_key_pressed(winit::event::VirtualKeyCode::Down) {
+            self.current_measure += 1;
+        }
+        if engine.input.is_key_pressed(winit::event::VirtualKeyCode::Up) {
+            if self.current_measure > 0 {
+                self.current_measure -= 1;
+            }
+        }
+
+        // Export
         if engine.input.is_key_pressed(winit::event::VirtualKeyCode::Space) {
             export_stage(self);
         }
@@ -210,7 +229,7 @@ impl engine::Game for Game {
                 .zip(uvs[apple_start..].iter_mut()),
         ) {
             *trf = AABB {
-                center: Vec2::new(arrow.start_pos.x - 88.0, arrow.start_pos.y),
+                center: Vec2::new(arrow.start_pos.x - 88.0, arrow.start_pos.y + self.current_measure as f32 * 64.0),
                 size: Vec2 { x: 4.0, y: 4.0 },
             }
             .into();
@@ -257,8 +276,7 @@ impl engine::Game for Game {
 fn spawn_arrow (game: &mut Game, dir: usize, mouse_y: f64) {
     let mut arrow_y_val = ((mouse_y - 600.0) as f32).abs() * (240.0 / 600.0);
     arrow_y_val = ((arrow_y_val) / 4.0).round() * 4.0;
-    println!("{}", arrow_y_val);
-
+    arrow_y_val = arrow_y_val - 64.0 * game.current_measure as f32;
     let underbar = (arrow_y_val - 184.0).abs();
 
     let measure = game.current_measure + (underbar / 64.0) as usize;
@@ -271,8 +289,6 @@ fn spawn_arrow (game: &mut Game, dir: usize, mouse_y: f64) {
         sixteenth: sixteenth as usize,
     };
 
-    println!("{}, {}, {}", target_time.measure, target_time.beat, target_time.sixteenth);
-
     let arrow = ArrowData {
         start_pos: Vec2::new(dir as f32 * 24.0 + 100.0, arrow_y_val),
         travel_time: 300,
@@ -283,22 +299,22 @@ fn spawn_arrow (game: &mut Game, dir: usize, mouse_y: f64) {
         0 => {
             game.arrows0.retain(|i| i.start_pos.y as i32 != arrow_y_val as i32);
             game.arrows0.push(arrow);
-            game.arrows0.sort_by_key(|a| a.start_pos.y as i32);
+            game.arrows0.sort_by_key(|a| a.location());
         }
         1 => {
             game.arrows1.retain(|i| i.start_pos.y as i32 != arrow_y_val as i32);
             game.arrows1.push(arrow);
-            game.arrows1.sort_by_key(|a| a.start_pos.y as i32);
+            game.arrows1.sort_by_key(|a| a.location());
         }
         2 => {
             game.arrows2.retain(|i| i.start_pos.y as i32 != arrow_y_val as i32);
             game.arrows2.push(arrow);
-            game.arrows2.sort_by_key(|a| a.start_pos.y as i32);
+            game.arrows2.sort_by_key(|a| a.location());
         }
         3 => {
             game.arrows3.retain(|i| i.start_pos.y as i32 != arrow_y_val as i32);
             game.arrows3.push(arrow);
-            game.arrows3.sort_by_key(|a| a.start_pos.y as i32);
+            game.arrows3.sort_by_key(|a| a.location());
         }
         _ => {}
     }
@@ -318,7 +334,7 @@ fn export_stage(game: &mut Game) {
     for arrow in game.arrows3.iter() {
         arrowset.push(*arrow);
     }
-    arrowset.sort_by_key(|a| -a.start_pos.y as i32);
+    arrowset.sort_by_key(|a| a.location() as i32);
 
     std::fs::File::create("content/levels/".to_owned() + &game.output_filepath + ".rchart").unwrap();
 
