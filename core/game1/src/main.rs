@@ -197,7 +197,7 @@ impl engine::Game for Game {
         trfs[0] = AABB {
             center: Vec2 {
                 x: 100.0,
-                y: H / 2.0,
+                y: 200.0,
             },
             size: Vec2 { x: 16.0, y: 16.0 },
         }
@@ -206,7 +206,7 @@ impl engine::Game for Game {
         trfs[1] = AABB {
             center: Vec2 {
                 x: 150.0,
-                y: H / 2.0,
+                y: 200.0,
             },
             size: Vec2 { x: 16.0, y: 16.0 },
         }
@@ -215,7 +215,7 @@ impl engine::Game for Game {
         trfs[2] = AABB {
             center: Vec2 {
                 x: 200.0,
-                y: H / 2.0,
+                y: 200.0,
             },
             size: Vec2 { x: 16.0, y: 16.0 },
         }
@@ -224,7 +224,7 @@ impl engine::Game for Game {
         trfs[3] = AABB {
             center: Vec2 {
                 x: 250.0,
-                y: H / 2.0,
+                y: 200.0,
             },
             size: Vec2 { x: 16.0, y: 16.0 },
         }

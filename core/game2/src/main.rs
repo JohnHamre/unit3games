@@ -9,7 +9,6 @@ pub use engine::structs::Arrow;
 pub use std::collections::VecDeque;
 const W: f32 = 320.0;
 const H: f32 = 240.0;
-const GUY_SPEED: f32 = 4.0;
 const SPRITE_MAX: usize = 16;
 const CATCH_DISTANCE: f32 = 16.0;
 const COLLISION_STEPS: usize = 3;
