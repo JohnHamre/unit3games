@@ -103,7 +103,7 @@ impl engine::Game for Game {
         if initlen > self.gamestate.arrows.len() {
             for _ in 0..(initlen - self.gamestate.arrows.len())
             {
-                self.gamestate.score = subtract_with_floor(self.gamestate.score, 500);
+                //self.gamestate.score = subtract_with_floor(self.gamestate.score, 500);
             }
         }
     }
@@ -264,7 +264,7 @@ fn update_score(game: &mut Game, engine: &mut Engine, arrow_dir: usize) {
         game.gamestate.score += 100;
     }
     else {
-        game.gamestate.score = subtract_with_floor(game.gamestate.score, 500);
+        game.gamestate.score = subtract_with_floor(game.gamestate.score, 100);
     }
 }
 
