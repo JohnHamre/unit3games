@@ -1,16 +1,17 @@
 // TODO: use AABB instead of Rect for centered box, so collision checking doesn't have to offset by half size
 
-use engine as engine;
+use engine::{self as engine, load_stage};
 use engine::wgpu;
 use engine::{geom::*, Camera, Engine, SheetRegion, Transform, Zeroable};
 use engine::structs::*;
 //use rand::Rng;
 pub use engine::structs::Arrow;
 pub use std::collections::VecDeque;
+use std::process::exit;
 const W: f32 = 320.0;
 const H: f32 = 240.0;
 const SPRITE_MAX: usize = 16;
-const CATCH_DISTANCE: f32 = 16.0;
+const CATCH_DISTANCE: f32 = 4.0;
 const COLLISION_STEPS: usize = 3;
 
 struct Guy {
@@ -94,7 +95,7 @@ impl engine::Game for Game {
                 walls: vec![left_wall, right_wall, floor],
                 arrows: Vec::with_capacity(16),
                 apple_timer: 0,
-                score: 0,
+                score: 3,
             },
             font,
         }
@@ -106,6 +107,11 @@ impl engine::Game for Game {
         if engine.input.is_key_pressed(engine::Key::Right) && self.gamestate.guy.pos.x < 240.0 {
             self.gamestate.guy.pos.x += 50.0;
         }
+        if engine.input.is_key_pressed(engine::Key::R) {
+            load_stage(engine, "content/levels/bill_nye.rchart");
+            self.gamestate.arrows.clear();
+            self.gamestate.score = 3;
+        }
         for event in frame_events.drain(..) {
             spawn_event(self, event);
         }
@@ -114,7 +120,7 @@ impl engine::Game for Game {
         for _iter in 0..COLLISION_STEPS {
             let guy_aabb = AABB {
                 center: self.gamestate.guy.pos,
-                size: Vec2 { x: 16.0, y: 16.0 },
+                size: Vec2 { x: 16.0, y: 1.0 },
             };
             contacts.clear();
             // TODO: to generalize to multiple guys, need to iterate over guys first and have guy_index, rect_index, displacement in a contact tuple
@@ -190,7 +196,11 @@ impl engine::Game for Game {
             .position(|arrow: &Arrow| arrow.pos.distance(self.gamestate.guy.pos) <= CATCH_DISTANCE)
         {
             self.gamestate.arrows.swap_remove(idx);
-            self.gamestate.score += 1;
+            self.gamestate.score -= 1;
+            if self.gamestate.score <= 0 {
+                println!("GAME OVER!");
+                exit(0);
+            }
         }
         self.gamestate.arrows.retain(|apple| apple.pos.y > -8.0)
     }
