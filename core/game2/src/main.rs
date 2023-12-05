@@ -40,19 +40,19 @@ impl engine::Game for Game {
         };
         #[cfg(target_arch = "wasm32")]
         let sprite_img = {
-            let img_bytes = include_bytes!("content/Sheet2.png");
+            let img_bytes = include_bytes!("content/Sheet_game2.png");
             image::load_from_memory_with_format(&img_bytes, image::ImageFormat::Png)
                 .map_err(|e| e.to_string())
                 .unwrap()
                 .into_rgba8()
         };
         #[cfg(not(target_arch = "wasm32"))]
-        let sprite_img = image::open("content/Sheet2.png").unwrap().into_rgba8();
+        let sprite_img = image::open("content/Sheet_game2.png").unwrap().into_rgba8();
         let sprite_tex = engine.renderer.gpu.create_texture(
             &sprite_img,
             wgpu::TextureFormat::Rgba8UnormSrgb,
             sprite_img.dimensions(),
-            Some("spr-Sheet2.png"),
+            Some("spr-Sheet_game2.png"),
         );
         engine.renderer.sprites.add_sprite_group(
             &engine.renderer.gpu,
@@ -216,7 +216,7 @@ impl engine::Game for Game {
             size: Vec2 { x: W, y: H },
         }
         .into();
-        uvs[0] = SheetRegion::new(0, 0, 0, 16, 880, 440);
+        uvs[0] = SheetRegion::new(0, 0, 0, 16, 860, 530);
         // set walls
         const WALL_START: usize = 1;
         let guy_idx = WALL_START + self.gamestate.walls.len();
@@ -235,7 +235,7 @@ impl engine::Game for Game {
         }
         .into();
         // TODO animation frame
-        uvs[guy_idx] = SheetRegion::new(0, 16, 480, 8, 16, 16);
+        uvs[guy_idx] = SheetRegion::new(0, 170, 561, 8, 90, 100);
         // set apple
         let apple_start = guy_idx + 1;
         for (apple, (trf, uv)) in self.gamestate.arrows.iter().zip(
@@ -249,11 +249,7 @@ impl engine::Game for Game {
             }
             .into();
             match apple.arrow_dir {
-                0 => { *uv = SheetRegion::new(0, 0, 565, 4, 32, 32); }
-                1 => { *uv = SheetRegion::new(0, 34, 565, 4, 32, 32); }
-                2 => { *uv = SheetRegion::new(0, 66, 565, 4, 32, 32); }
-                3 => { *uv = SheetRegion::new(0, 99, 565, 4, 32, 32); }
-                _ => {}
+                _ => { *uv = SheetRegion::new(0, 0, 548, 4, 150, 72); }
             }
         }
         let sprite_count = apple_start + self.gamestate.arrows.len();
